@@ -1,0 +1,7 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization;
+@model FileUpload.Pages.ViewFileModel
+@attribute [Authorize(Roles = "ADMINISTRATOR,BROWSE")]
+@{
+    Layout = null;
+}

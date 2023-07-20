@@ -310,9 +310,10 @@
 
         newForm.append(originalForm.elements[0].name, originalForm.elements[0].value);
 
-        function CreateFileInformation(filename, length) {
+        function CreateFileInformation(filename, length, type) {
             this.FileName = filename;
             this.Length = length;
+            this.ContentType = type;
         }
 
         fileInformation = [];

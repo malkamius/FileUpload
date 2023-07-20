@@ -30,6 +30,7 @@ namespace FileUpload.Pages
         public List<Areas.Orders.Data.File> Files { get; set; }
         public async Task<IActionResult> OnGetAsync(int? id, Guid? viewOrderGuid)
         {
+            bool email = false;
             if (id == null || _context.Orders == null)
             {
                 return NotFound();
@@ -43,7 +44,15 @@ namespace FileUpload.Pages
             else
             {
                 if (order.Status == "Waiting for files to upload.")
+                {
                     order.Status = "Awaiting file retrieval.";
+                    email = true;
+                }
+                else if (order.Status == "Order complete, no files supplied.")
+                {
+                    order.Status = "Awaiting action";
+                    email = true;
+                }
                 await _context.SaveChangesAsync();
 
                 Order = order;
@@ -124,61 +133,62 @@ namespace FileUpload.Pages
                 detailsString += "    </table>";
 
                 var service = (EmailService)_emailSender;
-                foreach (var user in _userManager.Users)
-                {
-                    if ((await _userManager.IsInRoleAsync(user, "ADMINISTRATOR") || await _userManager.IsInRoleAsync(user, "BROWSE")))
+                if (email)
+                    foreach (var user in _userManager.Users)
                     {
-                        
-
-                        var details = new XElement("OrderDetails",
-                        new XAttribute("OrderId", Order.OrderId),
-                        new XElement("ContactName", Order.Name),
-                        new XElement("PhoneNumber", Order.PhoneNumber),
-                        new XElement("EmailAddress", Order.EmailAddress),
-                        new XElement("CompanyName", Order.CompanyName),
-                        new XElement("Address1", Order.Address1),
-                        new XElement("Address2", Order.Address2),
-                        new XElement("City", Order.City),
-                        new XElement("State", Order.State),
-                        new XElement("ZipCode", Order.ZipCode),
-                        new XElement("Source", Order.Source),
-                        new XElement("DueDate", Order.DateDue),
-                        new XElement("DueTime", Order.LatestTimeDue),
-                        new XElement("SubmissionDate", Order.DateCreated),
-                        new XElement("ProjectNumber", Order.ProjectNumber),
-                        new XElement("ProjectName", Order.ProjectName),
-                        new XElement("PONumber", Order.PONumber),
-                        new XElement("Delivery", Order.Delivery),
-                        new XElement("Department", Order.Department),
-                        new XElement("NumberOfSets", Order.NumberOfSets),
-                        new XElement("Size", Order.Size),
-                        new XElement("Binding", Order.Binding),
-                        new XElement("Notes", Order.Notes));
-
-                        using (var entrystream = new MemoryStream())
+                        if ((await _userManager.IsInRoleAsync(user, "ADMINISTRATOR") || await _userManager.IsInRoleAsync(user, "BROWSE")))
                         {
-                            details.Save(entrystream);
 
-                            var attachments = new MimeKit.AttachmentCollection();
-                            var attachment = new MimePart("text", "plain")
+
+                            var details = new XElement("OrderDetails",
+                            new XAttribute("OrderId", Order.OrderId),
+                            new XElement("ContactName", Order.Name),
+                            new XElement("PhoneNumber", Order.PhoneNumber),
+                            new XElement("EmailAddress", Order.EmailAddress),
+                            new XElement("CompanyName", Order.CompanyName),
+                            new XElement("Address1", Order.Address1),
+                            new XElement("Address2", Order.Address2),
+                            new XElement("City", Order.City),
+                            new XElement("State", Order.State),
+                            new XElement("ZipCode", Order.ZipCode),
+                            new XElement("Source", Order.Source),
+                            new XElement("DueDate", Order.DateDue),
+                            new XElement("DueTime", Order.LatestTimeDue),
+                            new XElement("SubmissionDate", Order.DateCreated),
+                            new XElement("ProjectNumber", Order.ProjectNumber),
+                            new XElement("ProjectName", Order.ProjectName),
+                            new XElement("PONumber", Order.PONumber),
+                            new XElement("Delivery", Order.Delivery),
+                            new XElement("Department", Order.Department),
+                            new XElement("NumberOfSets", Order.NumberOfSets),
+                            new XElement("Size", Order.Size),
+                            new XElement("Binding", Order.Binding),
+                            new XElement("Notes", Order.Notes));
+
+                            using (var entrystream = new MemoryStream())
                             {
-                                Content = new MimeContent(entrystream, ContentEncoding.Default),
-                                ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
-                                ContentTransferEncoding = ContentEncoding.Base64,
-                                FileName = "Order " + Order.OrderId + " details.xml"
-                            };
-                            attachments.Add(attachment);
+                                details.Save(entrystream);
 
-                            
-                            await service.SendEmailAsync(user.Email, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://adtech.kbs-cloud.com/ViewOrder?id=" + Order.OrderId + "\">View Order</a><br />\n" + detailsString, attachments);
+                                var attachments = new MimeKit.AttachmentCollection();
+                                var attachment = new MimePart("text", "plain")
+                                {
+                                    Content = new MimeContent(entrystream, ContentEncoding.Default),
+                                    ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+                                    ContentTransferEncoding = ContentEncoding.Base64,
+                                    FileName = "Order " + Order.OrderId + " details.xml"
+                                };
+                                attachments.Add(attachment);
 
+
+                                await service.SendEmailAsync(user.Email, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://adtech.kbs-cloud.com/ViewOrder?id=" + Order.OrderId + "\">View Order</a><br />\n" + detailsString, attachments);
+
+                            }
                         }
-                    }
-                    else
-                        await _emailSender.SendEmailAsync(user.Email, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://adtech.kbs-cloud.com/ViewOrder?id=" + Order.OrderId + "\">View Order</a>");
-                }
+                        else
+                            await _emailSender.SendEmailAsync(user.Email, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://adtech.kbs-cloud.com/ViewOrder?id=" + Order.OrderId + "\">View Order</a>");
+                    } // end for each user
 
-                if (Order != null && Order.EmailAddress != null)
+                if (Order != null && Order.EmailAddress != null && email)
                     await service.SendEmailAsync(Order.EmailAddress, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://adtech.kbs-cloud.com/ViewOrderWithKey?id=" + Order.OrderId + "&viewOrderKey=" + Order.ViewOrderKey.ToString() + "\">View Order</a><br />\n" + detailsString);
             }
             return Page();
