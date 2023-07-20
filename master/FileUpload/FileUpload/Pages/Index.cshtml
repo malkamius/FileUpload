@@ -286,6 +286,7 @@
         }
 
         fileInformation = [];
+        attachments = [];
         $('li').each(async function() {
             var file = $(this).data('attachment');
             
@@ -295,13 +296,15 @@
             
             if (file.isFile) {
                 await file.file(function (item) {
-                    var onefile = new CreateFileInformation(item.name, item.size);
+                    var onefile = new CreateFileInformation(item.name, item.size, item.type);
                     fileInformation.push(onefile);
+                    attachments.push(item);
                 });
             }
             else if (file.isFile === undefined) {
-                var onefile = new CreateFileInformation(file.name, file.size);
+                var onefile = new CreateFileInformation(file.name, file.size, file.type);
                 fileInformation.push(onefile);
+                attachments.push(file);
             }
         });
         var jsonString = JSON.stringify(fileInformation);
@@ -309,8 +312,110 @@
 
         var formSubmissionRequest = new XMLHttpRequest();
         
+        formSubmissionRequest.onreadystatechange = function () {
+            if (formSubmissionRequest.readyState == 4) {
+                if (formSubmissionRequest.status == 200) {
+                    HandleAwaitingFiles(formSubmissionRequest, attachments);
+                }
+                else if (formSubmissionRequest.status == 400) {
+                    HandleSubmissionFailure(formSubmissionRequest);
+                }
+                else {
+                    HandleSubmissionFailure(formSubmissionRequest);
+                }
+            }
+        };
         formSubmissionRequest.open(originalForm.method, originalForm.action, true);
         formSubmissionRequest.send(newForm);
+    }
+
+    function FileUpload(OrderInsertResults)
+    {
+        this.OrderInsertResults = OrderInsertResults;
+        this.FileIndex = 0;
+        this.WriteIndex = 0;
+        this.ChunkSize = 4024000;
+
+        this.SendFiles = function(Upload)
+        {
+            var formData = new FormData();
+            formData.append('OrderId', Upload.OrderInsertResults.orderId);
+            formData.append('UploadFileKey', Upload.OrderInsertResults.uploadFileKey);
+            formData.append('FileId', Upload.OrderInsertResults.fileInformation[Upload.FileIndex].fileId);
+
+
+            formData.action = "/UploadFile";
+            formData.method = "POST";
+            
+            var file = OrderInsertResults.fileInformation[Upload.FileIndex].Blob;
+
+            formData.append("file[]", file.slice(Upload.WriteIndex, Upload.WriteIndex + Upload.ChunkSize), file.name);
+            var ChunkUploadRequest = new XMLHttpRequest();
+            
+                
+            ChunkUploadRequest.open(formData.method, formData.action, true);
+            ChunkUploadRequest.send(formData);
+
+            ChunkUploadRequest.onreadystatechange = function () {
+                if (ChunkUploadRequest.readyState == 4) {
+                    if (ChunkUploadRequest.status == 200) {
+                        Upload.WriteIndex = Upload.WriteIndex + Upload.ChunkSize;
+                        if (Upload.WriteIndex > file.size) {
+                            Upload.FileIndex++;
+                            Upload.WriteIndex = 0;
+                        }
+
+                        if (Upload.FileIndex >= Upload.OrderInsertResults.fileInformation.length) {
+                            alert("All done.");
+                        }
+                        else
+                        {
+                            Upload.SendFiles(Upload);
+                        }
+                    }
+                    else if (ChunkUploadRequest.status == 400) {
+                        alert("400 on chunk upload request");
+                    }
+                    else {
+                        alert(ChunkUploadRequest.responseText);
+                    }
+                }
+            };
+        }
+    }
+    
+    var upload;
+
+    function HandleAwaitingFiles(ajax, attachments)
+    {
+        var response = ajax.responseText;
+        var jsonObject = JSON.parse(response);
+
+        for (var i = 0; i < jsonObject.fileInformation.length; i++) {
+            jsonObject.fileInformation[i].Blob = attachments[i];
+        }
+        upload = new FileUpload(jsonObject);
+
+        upload.SendFiles(upload);
+    }
+
+    function HandleSubmissionFailure(ajax) {
+
+    }
+
+    function HandleUploadFailure(ajax)
+    {
+
+    }
+
+    function ChunkUploadCallback(ChunkUploadRequest)
+    {
+
+    }
+
+    function HandleUploadSuccess(ajax)
+    {
+
     }
 </script>
 @*End Handle form submission*@

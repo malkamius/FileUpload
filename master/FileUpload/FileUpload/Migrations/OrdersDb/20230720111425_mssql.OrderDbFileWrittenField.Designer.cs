@@ -4,6 +4,7 @@ using FileUpload.Areas.Orders.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FileUpload.Migrations.OrdersDb
 {
     [DbContext(typeof(OrdersDbContext))]
-    partial class OrdersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230720111425_mssql.OrderDbFileWrittenField")]
+    partial class mssqlOrderDbFileWrittenField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,9 +26,9 @@ namespace FileUpload.Migrations.OrdersDb
 
             modelBuilder.Entity("FileUpload.Areas.Orders.Data.AuditRecord", b =>
                 {
-                    b.Property<long>("AuditId")
+                    b.Property<int>("AuditId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"), 1L, 1);
 
@@ -60,11 +62,11 @@ namespace FileUpload.Migrations.OrdersDb
 
             modelBuilder.Entity("FileUpload.Areas.Orders.Data.File", b =>
                 {
-                    b.Property<long>("FileId")
+                    b.Property<int>("FileId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FileId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FileId"), 1L, 1);
 
                     b.Property<string>("ContentType")
                         .IsRequired()
@@ -81,8 +83,8 @@ namespace FileUpload.Migrations.OrdersDb
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("OrderId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
 
                     b.Property<long>("Written")
                         .HasColumnType("bigint");
@@ -96,11 +98,11 @@ namespace FileUpload.Migrations.OrdersDb
 
             modelBuilder.Entity("FileUpload.Areas.Orders.Data.Order", b =>
                 {
-                    b.Property<long>("OrderId")
+                    b.Property<int>("OrderId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("OrderId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"), 1L, 1);
 
                     b.Property<string>("Address1")
                         .IsRequired()

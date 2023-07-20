@@ -14,7 +14,6 @@ namespace FileUpload.Areas.Orders.Data
 
 		public DbSet<Order> Orders { get; set; }
         public DbSet<File> Files { get; set; }
-        public DbSet<FileInformation> FileInformation { get; set; }
 
         public DbSet<AuditRecord> AuditRecords { get; set; }
 
@@ -29,9 +28,6 @@ namespace FileUpload.Areas.Orders.Data
 
 			modelBuilder.Entity<AuditRecord>()
 				.HasKey(auditrecord => auditrecord.AuditId);
-
-            modelBuilder.Entity<FileInformation>()
-				.HasNoKey().ToView("FileInformation");
 
         }
 

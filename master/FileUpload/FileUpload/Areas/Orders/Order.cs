@@ -6,7 +6,7 @@ namespace FileUpload.Areas.Orders.Data
 {
 	public class Order
 	{
-		public int OrderId { get; set; }
+		public long OrderId { get; set; }
 		[Required]
 		public string? Name { get; set; }
 		[Required]
