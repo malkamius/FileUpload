@@ -43,7 +43,7 @@ namespace FileUpload.Pages
                 Response.Headers.Add("Content-Disposition", "inline; filename=" + file.Name);
                 var reader = System.IO.File.OpenRead(file.FilePath);
                 {
-                    var result = File(reader, file.ContentType);
+                    var result = File(reader, !string.IsNullOrEmpty(file.ContentType)?  file.ContentType : "application/octet-stream");
                     var audituser = await _userManager.GetUserAsync(User);
 
                     AuditRecord auditRecord = new AuditRecord()
@@ -77,7 +77,7 @@ namespace FileUpload.Pages
                 await _context.SaveChangesAsync();
                 var reader = System.IO.File.OpenRead(file.FilePath);
                 {
-                    var result = File(reader, file.ContentType, file.Name);
+                    var result = File(reader, !string.IsNullOrEmpty(file.ContentType) ? file.ContentType : "application/octet-stream", file.Name);
                     return result;
                 }
             }

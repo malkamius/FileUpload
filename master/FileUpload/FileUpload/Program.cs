@@ -7,8 +7,8 @@ using FileUpload.Pages;
 using FileUpload.Areas.Orders.Data;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration
-    .SetBasePath("C:\\Users\\Giaken\\AppData\\Roaming\\Microsoft\\UserSecrets\\317bdbe5-08f4-45f7-a2e9-15557b88abb9").AddJsonFile("Secrets.json");
+//builder.Configuration
+//    .SetBasePath("C:\\Users\\Giaken\\AppData\\Roaming\\Microsoft\\UserSecrets\\317bdbe5-08f4-45f7-a2e9-15557b88abb9").AddJsonFile("Secrets.json");
 var connectionString = builder.Configuration.GetConnectionString("FileUploadIdentityContextConnection") ?? throw new InvalidOperationException("Connection string 'FileUploadIdentityContextConnection' not found.");
 
 builder.Services.AddDbContext<FileUploadIdentityContext>(options =>

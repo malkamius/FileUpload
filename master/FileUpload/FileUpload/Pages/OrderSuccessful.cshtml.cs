@@ -180,16 +180,16 @@ namespace FileUpload.Pages
                                 attachments.Add(attachment);
 
 
-                                await service.SendEmailAsync(user.Email, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://adtech.kbs-cloud.com/ViewOrder?id=" + Order.OrderId + "\">View Order</a><br />\n" + detailsString, attachments);
+                                await service.SendEmailAsync(user.Email, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://fileupload.kbs-cloud.com/ViewOrder?id=" + Order.OrderId + "\">View Order</a><br />\n" + detailsString, attachments);
 
                             }
                         }
                         else
-                            await _emailSender.SendEmailAsync(user.Email, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://adtech.kbs-cloud.com/ViewOrder?id=" + Order.OrderId + "\">View Order</a>");
+                            await _emailSender.SendEmailAsync(user.Email, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://fileupload.kbs-cloud.com/ViewOrder?id=" + Order.OrderId + "\">View Order</a>");
                     } // end for each user
 
                 if (Order != null && Order.EmailAddress != null && email)
-                    await service.SendEmailAsync(Order.EmailAddress, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://adtech.kbs-cloud.com/ViewOrderWithKey?id=" + Order.OrderId + "&viewOrderKey=" + Order.ViewOrderKey.ToString() + "\">View Order</a><br />\n" + detailsString);
+                    await service.SendEmailAsync(Order.EmailAddress, "New Order Submitted", "Order successfully placed. OrderID " + Order.OrderId + " - " + Files.Count + " files uploaded. <br /><a href=\"https://fileupload.kbs-cloud.com/ViewOrderWithKey?id=" + Order.OrderId + "&viewOrderKey=" + Order.ViewOrderKey.ToString() + "\">View Order</a><br />\n" + detailsString);
             }
             return Page();
         }
