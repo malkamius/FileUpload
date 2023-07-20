@@ -1,0 +1,237 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+<style>
+body {
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  width: 500px;
+  margin: 0 auto;
+}
+
+form {
+  margin-top: 50px;
+}
+
+input[type=text], select, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+
+input[type=submit] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+h2 {
+  color: #2c3e50;
+}
+
+.upload-area {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+    .invalid-feedback {
+        color: red;
+    }
+
+    .is-invalid {
+        border-color: red;
+    }
+
+    .is-valid {
+        border-color: green;
+    }
+
+    #file-list-container {
+        width: 500px;
+        height: 200px;
+        overflow: scroll;
+    }
+
+    .selectedfile {
+        background-color: #cce5ff;
+        cursor: pointer;
+    }
+</style>
+
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    
+    <div class="container">
+        <form action="/upload" method="post" enctype="multipart/form-data">
+
+            <h2>Contact Info</h2>
+            <input type="text" id="name" name="name" placeholder="Your name..">
+            <input type="text" id="phone" name="phone" placeholder="Your phone number..">
+            <input type="text" id="email" name="email" placeholder="Your email..">
+
+            <h2>Company Info</h2>
+            <input type="text" id="companyName" name="companyName" placeholder="Company name..">
+            <input type="text" id="address1" name="address1" placeholder="Address 1..">
+            <input type="text" id="address2" name="address2" placeholder="Address 2..">
+            <input type="text" id="city" name="city" placeholder="City..">
+            <input type="text" id="state" name="state" placeholder="State..">
+            <input type="text" id="zip" name="zip" placeholder="Zip..">
+
+            <h2>Time Constraints</h2>
+            <input type="date" id="dueDate" name="dueDate">
+            <input type="time" id="latestDueTime" name="latestDueTime">
+
+            <h2>Accounting Details</h2>
+            <input type="text" id="projectNumber" name="projectNumber" placeholder="Project #..">
+            <input type="text" id="poNumber" name="poNumber" placeholder="PO #..">
+            <input type="text" id="projectName" name="projectName" placeholder="Project name..">
+
+            <h2>Production Specifics</h2>
+            <textarea id="notes" name="notes" placeholder="Write something.."></textarea>
+
+            <h2>File Upload</h2>
+            <div class="upload-area" id="fo;e=;ost">
+                Drag and Drop Files Here
+                <ul id="file-list"></ul>
+            </div>
+            <input type="file" id="FileSelector" name="FileSelector[]" multiple>
+            <button type="button" id="remove-button">Remove Selected Items</button>
+            <div></div>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('form').validate({
+            rules: {
+                name: {
+                    required: true,
+                    minlength: 2
+                },
+                phone: {
+                    required: true,
+                    minlength: 10,
+                    number: true
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                companyName: {
+                    required: true,
+                },
+                address1: {
+                    required: true,
+                },
+                city: {
+                    required: true,
+                },
+                state: {
+                    required: true,
+                },
+                zip: {
+                    required: true,
+                    minlength: 5,
+                    number: true
+                },
+                dueDate: {
+                    required: true,
+                    date: true
+                },
+                latestDueTime: {
+                    required: true,
+                },
+                projectNumber: {
+                    required: true,
+                },
+                poNumber: {
+                    required: true,
+                },
+                projectName: {
+                    required: true,
+                },
+                notes: {
+                    required: false,
+                }
+            },
+            messages: {
+            },
+            errorElement: 'div',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                error.insertAfter(element);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid').removeClass('is-valid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-valid').removeClass('is-invalid');
+            }
+        });
+    });
+
+    const $fileSelector = $('#FileSelector');
+    const $fileList = $('#file-list');
+    const $removeButton = $('#remove-button');
+
+    $fileSelector.on('change', function (e) {
+        var files = $fileSelector.get(0).files;
+
+
+        for (var i = 0; i < files.length; i++) {
+            var item = files[i];
+            const $li = $('<li>')
+                .text(item.name)
+                .attr('data-path', item.name)
+                .attr('data-attachment', item);
+            $fileList.append($li);
+            $li.get(0).attachment = item;
+        }
+        $fileSelector.val('');
+    });
+
+    $fileList.on('click', 'li', function () {
+        $(this).toggleClass('selectedfile');
+    });
+
+    $removeButton.on('click', function (e) {
+
+        $('.selectedfile').each(function () {
+            const selectedfilePath = $(this).data('path');
+            const ul = $(this).next('ul');// $(this).data('ul');
+            if (ul.length == 1) {
+                ul.remove();
+            }
+            $('.selectedfile').remove();
+        });
+    });
+</script>

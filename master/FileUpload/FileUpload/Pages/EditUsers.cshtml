@@ -1,0 +1,37 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using FileUpload.Areas.Identity.Data
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<FileUploadUser> UserManager
+@attribute [Authorize(Roles = "ADMINISTRATOR")]
+@model EditUsersModel
+@{
+    ViewData["Title"] = "Edit Users";
+}
+<h1>@ViewData["Title"]</h1>
+
+
+<table class="styled-table">
+
+    @{
+        <thead><tr><th><p>Email</p></th><th><p>Name</p></th><th colspan=2><p>Role</p></th><th></th></tr></thead>
+        <tbody>
+            @foreach(var user in UserManager.Users)
+            {
+            var roles = UserManager.GetRolesAsync(user).Result;
+            var IsAdmin = roles.Contains("ADMINISTRATOR")? " checked" : "";
+            var IsBrowse = roles.Contains("BROWSE")? " checked" : "";
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.UserName</td>
+                <td><input type="radio" name="Role_@user.Id" value="Administrator" @IsAdmin disabled=true>&nbsp;Admin</td>
+                <td><input type="radio" name="Role_@user.Id" value="Browse" @IsBrowse disabled=true>&nbsp;Browse</td>
+                <td><a asp-page="EditUser" asp-route-id="@user.Id" asp-page-handler="Edit" class="button">Edit</a></td>
+
+            </tr>
+
+            }
+        </tbody>
+    }
+
+</table>

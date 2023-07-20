@@ -1,0 +1,47 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using FileUpload.Areas.Identity.Data
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<FileUploadUser> UserManager
+@attribute [Authorize(Roles = "ADMINISTRATOR")]
+@model EditUserModel
+@{
+    ViewData["Title"] = "Edit Users";
+}
+<h1>@ViewData["Title"]</h1>
+
+
+<table>
+    <form method="post">
+        @{
+            if (Request.Query.ContainsKey("id"))
+            {
+                var user = UserManager.FindByIdAsync(Request.Query["id"]).Result;
+                var roles = UserManager.GetRolesAsync(user).Result;
+                Model.UserId = Request.Query["id"];
+                Model.Password = "";
+                Model.Email = user.Email;
+                Model.Locked = user.LockoutEnd > DateTime.Now;
+                Model.Name = user.UserName;
+                Model.IsAdministrator = roles.Contains("ADMINISTRATOR");
+                Model.IsBrowse = roles.Contains("BROWSE");
+            }
+            @Html.HiddenFor(m => m.UserId)
+        <p>Email: @Html.TextBoxFor(m => m.Email)</p>
+        <p>Name: @Html.TextBoxFor(m => m.Name)</p>
+        <p>Password: @Html.PasswordFor(m => m.Password)</p>
+        <p>Locked: @Html.CheckBoxFor(m => m.Locked)</p>
+        var IsAdmin = Model.IsAdministrator? " checked" : "";
+        var IsBrowse = Model.IsBrowse? " checked" : "";
+        var IsInactive = !Model.IsBrowse && !Model.IsAdministrator? " checked" : "";
+        <p><input type="radio" name="Role" value="Administrator" @IsAdmin>&nbsp;Admin</p>
+        <p><input type="radio" name="Role" value="Browse" @IsBrowse>&nbsp;Browse</p>
+        <p><input type="radio" name="Role" value="Inactive" @IsInactive>&nbsp;Inactive</p>
+    }
+    <input type="submit" value="Save"/>
+    </form>
+
+    @{
+        
+    }
+</table>
