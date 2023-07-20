@@ -89,9 +89,12 @@
         cursor: pointer;
     }
 
-    ul {}
+    ul {
+    }
 
-    li { text-align: left; }
+    li {
+        text-align: left;
+    }
 </style>
 
 
@@ -99,14 +102,14 @@
     @*<h1 class="display-4">Welcome</h1>*@
 
     <div class="container">
-        <form method="post" asp-route="Index" enctype="multipart/form-data">
+        <form method="post" asp-route="Index" enctype="multipart/form-data" onsubmit="submitForm(event)" id="OrderForm">
             <input name="__RequestVerificationToken" type="hidden" value="">
             <div class="form-row">
                 <div>
                     <h2>Contact Info</h2>
                     <input asp-for="Order.Name" type="text" id="Name" name="Name" placeholder="Your name.." value="@Model.Request.Cookies["name"]">
-                    <input asp-for="Order.PhoneNumber" type="text" id="PhoneNumber" name="PhoneNumber" placeholder="Your phone number.." value="@Model.Request.Cookies["phone"]">
-                    <input asp-for="Order.EmailAddress" type="text" id="EmailAddress" name="EmailAddress" placeholder="Your email.." value="@Model.Request.Cookies["email"]">
+                    <input asp-for="Order.PhoneNumber" type="text" id="PhoneNumber" name="PhoneNumber" placeholder="Your phone number.." value="@Model.Request.Cookies["phonenumber"]">
+                    <input asp-for="Order.EmailAddress" type="text" id="EmailAddress" name="EmailAddress" placeholder="Your email.." value="@Model.Request.Cookies["emailaddress"]">
                 </div>
                 <div>
                     <h2>Company Info</h2>
@@ -115,7 +118,7 @@
                     <input asp-for="Order.Address2" type="text" id="Address2" name="Address2" placeholder="Address 2.." value="@Model.Request.Cookies["address2"]">
                     <input asp-for="Order.City" type="text" id="City" name="City" placeholder="City.." value="@Model.Request.Cookies["city"]">
                     <input asp-for="Order.State" type="text" id="State" name="State" placeholder="State.." value="@Model.Request.Cookies["state"]">
-                    <input asp-for="Order.ZipCode" type="text" id="ZipCode" name="ZipCode" placeholder="Zip.." value="@Model.Request.Cookies["zip"]">
+                    <input asp-for="Order.ZipCode" type="text" id="ZipCode" name="ZipCode" placeholder="Zip.." value="@Model.Request.Cookies["zipcode"]">
                 </div>
             </div>
             <div class="form-row">
@@ -151,6 +154,7 @@
     </div>
 </div>
 
+@*Begin of form validation*@
 <script>
     $(document).ready(function () {
         $('form').validate({
@@ -220,7 +224,11 @@
             }
         });
     });
+</script>
+@*End of form validation*@
 
+@*Begin file input handling/remove file handling*@
+<script>
     const $fileSelector = $('#FileSelector');
     const $fileList = $('#file-list');
     const $removeButton = $('#remove-button');
@@ -257,3 +265,52 @@
         });
     });
 </script>
+@*End file input handling/remove file handling*@
+
+@*Handle form submission*@
+<script>
+    function submitForm(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Get the original form
+        var originalForm = document.getElementById("OrderForm");
+
+        // Create a new form copy of original
+        var newForm = new FormData(originalForm);
+        
+        newForm.append(originalForm.elements[0].name, originalForm.elements[0].value);
+        
+        function CreateFileInformation(filename, length) {
+            this.FileName = filename;
+            this.Length = length;
+        }
+
+        fileInformation = [];
+        $('li').each(async function() {
+            var file = $(this).data('attachment');
+            
+            if (file === undefined) return;
+            
+            file = $(this).get(0).attachment;
+            
+            if (file.isFile) {
+                await file.file(function (item) {
+                    var onefile = new CreateFileInformation(item.name, item.size);
+                    fileInformation.push(onefile);
+                });
+            }
+            else if (file.isFile === undefined) {
+                var onefile = new CreateFileInformation(file.name, file.size);
+                fileInformation.push(onefile);
+            }
+        });
+        var jsonString = JSON.stringify(fileInformation);
+        newForm.append("FileInformation", jsonString);
+
+        var formSubmissionRequest = new XMLHttpRequest();
+        
+        formSubmissionRequest.open(originalForm.method, originalForm.action, true);
+        formSubmissionRequest.send(newForm);
+    }
+</script>
+@*End Handle form submission*@

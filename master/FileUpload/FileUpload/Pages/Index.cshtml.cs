@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace FileUpload.Pages
 {
@@ -41,7 +43,6 @@ namespace FileUpload.Pages
             
             var cookieOptions = new CookieOptions { Expires = DateTime.Now.AddYears(1) };
 
-
             Response.Cookies.Append("Name", Order.Name ?? "", cookieOptions);
             Response.Cookies.Append("PhoneNumber", Order.PhoneNumber ?? "", cookieOptions);
             Response.Cookies.Append("EmailAddress", Order.EmailAddress ?? "", cookieOptions);
@@ -52,9 +53,19 @@ namespace FileUpload.Pages
             Response.Cookies.Append("State", Order.State ?? "", cookieOptions);
             Response.Cookies.Append("ZipCode", Order.ZipCode ?? "", cookieOptions);
 
+            var files = Request.Form["FileInformation"][0];
+
+            var files1 = JsonSerializer.Deserialize<List<FileData>>(files);
+            return Content("");
+            //return JsonContent.Create(Content(Order.OrderId.ToString() + "," + Order.UploadFileKey.ToString() + "," + Order.ViewOrderKey.ToString()));
+        }
 
 
-            return Content(Order.OrderId.ToString() + "," + Order.UploadFileKey.ToString() + "," + Order.ViewOrderKey.ToString());
+        public class FileData
+        {
+            public string FileName { get; set; }
+            public int Length { get; set; }
         }
     }
+
 }
