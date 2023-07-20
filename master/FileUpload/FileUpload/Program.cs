@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using FileUpload.Data;
 using FileUpload.Areas.Identity.Data;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using FileUpload.Pages;
+using FileUpload.Areas.Orders.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
@@ -11,16 +14,36 @@ var connectionString = builder.Configuration.GetConnectionString("FileUploadIden
 builder.Services.AddDbContext<FileUploadIdentityContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddDbContext<OrdersDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("FileUploadDataContextConnection")));
+
+
 builder.Services.AddDefaultIdentity<FileUploadUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders()
     .AddEntityFrameworkStores<FileUploadIdentityContext>();
 
+
+builder.Services.AddScoped<IEmailSender, EmailService>();
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
 
+    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    if (!await roleManager.RoleExistsAsync("ADMINISTRATOR"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("ADMINISTRATOR"));
+    }
+    if (!await roleManager.RoleExistsAsync("BROWSE"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("BROWSE"));
+    }
+}
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

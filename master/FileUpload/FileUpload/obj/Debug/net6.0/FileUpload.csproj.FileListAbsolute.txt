@@ -512,3 +512,11 @@ C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUploa
 C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\obj\Debug\net6.0\FileUpload.pdb
 C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\obj\Debug\net6.0\FileUpload.genruntimeconfig.cache
 C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\obj\Debug\net6.0\ref\FileUpload.dll
+C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\bin\Debug\net6.0\BouncyCastle.Cryptography.dll
+C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\bin\Debug\net6.0\MailKit.dll
+C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\bin\Debug\net6.0\MimeKit.dll
+C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\bin\Debug\net6.0\System.Formats.Asn1.dll
+C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\bin\Debug\net6.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\bin\Debug\net6.0\System.Text.Encoding.CodePages.dll
+C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\Giaken\OneDrive\Documents\GitHub\FileUpload\master\FileUpload\FileUpload\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Text.Encoding.CodePages.dll

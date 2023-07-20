@@ -1,11 +1,17 @@
 {
   "dependencies": {
-    "secrets1": {
-      "type": "secrets"
-    },
     "mssql2": {
       "type": "mssql",
       "connectionId": "ConnectionStrings:FileUploadIdentityContextConnection"
+    },
+    "secrets1": {
+      "type": "secrets",
+      "connectionId": null
+    },
+    "mssql1": {
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:FileUploadDataContextConnection",
+      "dynamicId": null
     }
   }
 }

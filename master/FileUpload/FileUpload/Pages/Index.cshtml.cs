@@ -1,5 +1,7 @@
-﻿using FileUpload.Areas.Orders.Data;
+﻿using FileUpload.Areas.Identity.Data;
+using FileUpload.Areas.Orders.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -10,12 +12,19 @@ namespace FileUpload.Pages
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
-
-        public IndexModel(ILogger<IndexModel> logger)
+        private readonly OrdersDbContext _context;
+        private readonly IEmailSender _emailSender;
+        private readonly UserManager<FileUploadUser> _userManager;
+        private readonly IConfiguration _configuration;
+        public IndexModel(OrdersDbContext context, IEmailSender emailSender, UserManager<FileUploadUser> userManager, IConfiguration configuration, ILogger<IndexModel> logger)
         {
+            _context = context;
+            _emailSender = emailSender;
+            _userManager = userManager;
+            _configuration = configuration;
             _logger = logger;
         }
-
+        
         public void OnGet()
         {
         }
