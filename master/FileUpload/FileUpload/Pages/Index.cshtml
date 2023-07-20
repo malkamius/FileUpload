@@ -4,61 +4,67 @@
     ViewData["Title"] = "Home page";
 }
 <style>
-body {
-  font-family: Arial, sans-serif;
-}
+    body {
+        font-family: Arial, sans-serif;
+    }
 
-.container {
-  width: 500px;
-  margin: 0 auto;
-}
+    .container {
+        width: 500px;
+        margin: 0 auto;
+    }
 
-form {
-  margin-top: 50px;
-}
+    form {
+        margin-top: 50px;
+    }
 
-input[type=text], select, textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  margin-top: 6px;
-  margin-bottom: 16px;
-  resize: vertical;
-}
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+    }
 
-input[type=submit] {
-  background-color: #4CAF50;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  cursor: pointer;
-}
+    input[type=text], select, textarea {
+        width: 100%;
+        padding: 2px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        margin-top: 2px;
+        margin-bottom: 12px;
+        resize: vertical;
+    }
 
-input[type=submit]:hover {
-  background-color: #45a049;
-}
+    input[type=submit] {
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        cursor: pointer;
+    }
 
-h2 {
-  color: #2c3e50;
-}
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
 
-.upload-area {
-  border: 2px dashed #ccc;
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 16px;
-  cursor: pointer;
-}
+    h2 {
+        color: #2c3e50;
+    }
 
-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  margin-bottom: 16px;
-}
+    .upload-area {
+        border: 2px dashed #ccc;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 16px;
+        cursor: pointer;
+    }
+
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 16px;
+    }
 
     .invalid-feedback {
         color: red;
@@ -82,48 +88,63 @@ button {
         background-color: #cce5ff;
         cursor: pointer;
     }
+
+    ul {}
+
+    li { text-align: left; }
 </style>
 
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    
+    @*<h1 class="display-4">Welcome</h1>*@
+
     <div class="container">
         <form action="/upload" method="post" enctype="multipart/form-data">
-
-            <h2>Contact Info</h2>
-            <input type="text" id="name" name="name" placeholder="Your name..">
-            <input type="text" id="phone" name="phone" placeholder="Your phone number..">
-            <input type="text" id="email" name="email" placeholder="Your email..">
-
-            <h2>Company Info</h2>
-            <input type="text" id="companyName" name="companyName" placeholder="Company name..">
-            <input type="text" id="address1" name="address1" placeholder="Address 1..">
-            <input type="text" id="address2" name="address2" placeholder="Address 2..">
-            <input type="text" id="city" name="city" placeholder="City..">
-            <input type="text" id="state" name="state" placeholder="State..">
-            <input type="text" id="zip" name="zip" placeholder="Zip..">
-
-            <h2>Time Constraints</h2>
-            <input type="date" id="dueDate" name="dueDate">
-            <input type="time" id="latestDueTime" name="latestDueTime">
-
-            <h2>Accounting Details</h2>
-            <input type="text" id="projectNumber" name="projectNumber" placeholder="Project #..">
-            <input type="text" id="poNumber" name="poNumber" placeholder="PO #..">
-            <input type="text" id="projectName" name="projectName" placeholder="Project name..">
-
-            <h2>Production Specifics</h2>
-            <textarea id="notes" name="notes" placeholder="Write something.."></textarea>
-
-            <h2>File Upload</h2>
-            <div class="upload-area" id="fo;e=;ost">
-                Drag and Drop Files Here
-                <ul id="file-list"></ul>
+            <div class="form-row">
+                <div>
+                    <h2>Contact Info</h2>
+                    <input type="text" id="name" name="name" placeholder="Your name..">
+                    <input type="text" id="phone" name="phone" placeholder="Your phone number..">
+                    <input type="text" id="email" name="email" placeholder="Your email..">
+                </div>
+                <div>
+                    <h2>Company Info</h2>
+                    <input type="text" id="companyName" name="companyName" placeholder="Company name..">
+                    <input type="text" id="address1" name="address1" placeholder="Address 1..">
+                    <input type="text" id="address2" name="address2" placeholder="Address 2..">
+                    <input type="text" id="city" name="city" placeholder="City..">
+                    <input type="text" id="state" name="state" placeholder="State..">
+                    <input type="text" id="zip" name="zip" placeholder="Zip..">
+                </div>
             </div>
-            <input type="file" id="FileSelector" name="FileSelector[]" multiple>
-            <button type="button" id="remove-button">Remove Selected Items</button>
-            <div></div>
+            <div class="form-row">
+                <div>
+                    <h2>Time Constraints</h2>
+                    <input type="date" id="dueDate" name="dueDate">
+                    <input type="time" id="latestDueTime" name="latestDueTime">
+                </div>
+                <div>
+                    <h2>Accounting Details</h2>
+                    <input type="text" id="projectNumber" name="projectNumber" placeholder="Project #..">
+                    <input type="text" id="poNumber" name="poNumber" placeholder="PO #..">
+                    <input type="text" id="projectName" name="projectName" placeholder="Project name..">
+                </div>
+            </div>
+            <div>
+                <h2>Production Specifics</h2>
+                <textarea id="notes" name="notes" placeholder="Special Instructions.."></textarea>
+            </div>
+
+            <div>
+                <h2>File Upload</h2>
+                <div class="upload-area" id="fo;e=;ost">
+                    Drag and Drop Files Here
+                    <ul id="file-list"></ul>
+                </div>
+                <input type="file" id="FileSelector" name="FileSelector[]" multiple>
+                <button type="button" id="remove-button">Remove Selected Items</button>
+                <div></div>
+            </div>
             <input type="submit" value="Submit">
         </form>
     </div>
