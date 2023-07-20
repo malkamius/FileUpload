@@ -97,6 +97,27 @@
     }
 </style>
 
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+</style>
 
 <div class="text-center">
     @*<h1 class="display-4">Welcome</h1>*@
@@ -151,6 +172,13 @@
             </div>
             <input type="submit" value="Submit">
         </form>
+    </div>
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <p id="statusMessage"></p>
+            <p id="fileUploadStatus"></p>
+            <p id="totalStatus"></p>
+        </div>
     </div>
 </div>
 
@@ -271,15 +299,17 @@
 <script>
     function submitForm(event) {
         event.preventDefault(); // Prevent the default form submission
-
+        EnableDisableForm(false);
+        UpdateStatus("Initializing...", "0%", "0%");
+        ShowHideStatus(true);
         // Get the original form
         var originalForm = document.getElementById("OrderForm");
 
         // Create a new form copy of original
         var newForm = new FormData(originalForm);
-        
+
         newForm.append(originalForm.elements[0].name, originalForm.elements[0].value);
-        
+
         function CreateFileInformation(filename, length) {
             this.FileName = filename;
             this.Length = length;
@@ -287,13 +317,13 @@
 
         fileInformation = [];
         attachments = [];
-        $('li').each(async function() {
+        $('li').each(async function () {
             var file = $(this).data('attachment');
-            
+
             if (file === undefined) return;
-            
+
             file = $(this).get(0).attachment;
-            
+
             if (file.isFile) {
                 await file.file(function (item) {
                     var onefile = new CreateFileInformation(item.name, item.size, item.type);
@@ -309,9 +339,9 @@
         });
         var jsonString = JSON.stringify(fileInformation);
         newForm.append("FileInformation", jsonString);
-
+        UpdateStatus("Submitting order...", "0%", "0%");
         var formSubmissionRequest = new XMLHttpRequest();
-        
+
         formSubmissionRequest.onreadystatechange = function () {
             if (formSubmissionRequest.readyState == 4) {
                 if (formSubmissionRequest.status == 200) {
@@ -329,15 +359,20 @@
         formSubmissionRequest.send(newForm);
     }
 
-    function FileUpload(OrderInsertResults)
-    {
+    function FileUpload(OrderInsertResults) {
         this.OrderInsertResults = OrderInsertResults;
         this.FileIndex = 0;
         this.WriteIndex = 0;
-        this.ChunkSize = 4024000;
+        this.ChunkSize = 10240000;
+        this.TotalWritten = 0;
+        this.TotalLength = 0;
 
-        this.SendFiles = function(Upload)
-        {
+        this.SendFiles = function (Upload) {
+            if(Upload.FileIndex == 0 && Upload.WriteIndex == 0)
+            {
+                UpdateStatus("Starting file upload...", "0%", "0%");
+            }
+
             var formData = new FormData();
             formData.append('OrderId', Upload.OrderInsertResults.orderId);
             formData.append('UploadFileKey', Upload.OrderInsertResults.uploadFileKey);
@@ -346,56 +381,73 @@
 
             formData.action = "/UploadFile";
             formData.method = "POST";
-            
+
             var file = OrderInsertResults.fileInformation[Upload.FileIndex].Blob;
 
             formData.append("file[]", file.slice(Upload.WriteIndex, Upload.WriteIndex + Upload.ChunkSize), file.name);
             var ChunkUploadRequest = new XMLHttpRequest();
-            
-                
+
+
             ChunkUploadRequest.open(formData.method, formData.action, true);
             ChunkUploadRequest.send(formData);
 
             ChunkUploadRequest.onreadystatechange = function () {
                 if (ChunkUploadRequest.readyState == 4) {
                     if (ChunkUploadRequest.status == 200) {
+                        var wasWriteIndex = Upload.WriteIndex;
                         Upload.WriteIndex = Upload.WriteIndex + Upload.ChunkSize;
+                        
                         if (Upload.WriteIndex > file.size) {
                             Upload.FileIndex++;
+                            UpdateStatus("File " + (Upload.FileIndex + 1) + "/" + Upload.OrderInsertResults.fileInformation.length, "0%", Math.floor(Upload.TotalWritten / Upload.TotalLength * 100) + "%");
                             Upload.WriteIndex = 0;
-                        }
-
-                        if (Upload.FileIndex >= Upload.OrderInsertResults.fileInformation.length) {
-                            alert("All done.");
                         }
                         else
                         {
+                            Upload.TotalWritten += Math.min(Upload.ChunkSize, OrderInsertResults.fileInformation[Upload.FileIndex].Blob.size - wasWriteIndex);
+                            UpdateStatus("File " + (Upload.FileIndex + 1) + "/" + Upload.OrderInsertResults.fileInformation.length, Math.floor(Upload.WriteIndex / file.size * 100) + "%", Math.floor(Upload.TotalWritten / Upload.TotalLength * 100) + "%");
+                        }
+
+                        if (Upload.FileIndex >= Upload.OrderInsertResults.fileInformation.length) {
+                            UpdateStatus("File " + (Upload.FileIndex) + "/" + Upload.OrderInsertResults.fileInformation.length, "100%", "100%");
+                            //alert("All done.");
+                            setTimeout(() => {
+                                window.location.href = "/OrderSuccessful?id=" + Upload.OrderInsertResults.orderId + "&viewOrderGuid=" + Upload.OrderInsertResults.viewOrderKey;
+                            }, 1000);
+                            //ShowHideStatus(false);
+                            //EnableDisableForm(true);
+                        }
+                        else {
                             Upload.SendFiles(Upload);
                         }
                     }
                     else if (ChunkUploadRequest.status == 400) {
                         alert("400 on chunk upload request");
+                        ShowHideStatus(false);
+                        EnableDisableForm(true);
                     }
                     else {
                         alert(ChunkUploadRequest.responseText);
+                        ShowHideStatus(false);
+                        EnableDisableForm(true);
                     }
                 }
             };
         }
     }
-    
+
     var upload;
 
-    function HandleAwaitingFiles(ajax, attachments)
-    {
+    function HandleAwaitingFiles(ajax, attachments) {
         var response = ajax.responseText;
         var jsonObject = JSON.parse(response);
-
+        var totalLength = 0;
         for (var i = 0; i < jsonObject.fileInformation.length; i++) {
             jsonObject.fileInformation[i].Blob = attachments[i];
+            totalLength += attachments[i].size;
         }
         upload = new FileUpload(jsonObject);
-
+        upload.TotalLength = totalLength;
         upload.SendFiles(upload);
     }
 
@@ -403,19 +455,42 @@
 
     }
 
-    function HandleUploadFailure(ajax)
-    {
+    function HandleUploadFailure(ajax) {
 
     }
 
-    function ChunkUploadCallback(ChunkUploadRequest)
-    {
+    function ChunkUploadCallback(ChunkUploadRequest) {
 
     }
 
-    function HandleUploadSuccess(ajax)
-    {
+    function HandleUploadSuccess(ajax) {
 
+    }
+
+    function EnableDisableForm(enabled) {
+        if (enabled) {
+            $(this).find(':input').prop('disabled', false);
+        }
+        else
+            $(this).find(':input').prop('disabled', true);
+    }
+
+    function ShowHideStatus(show) {
+        if (show)
+            $('#statusModal').css('display', 'block');
+        else
+            $('#statusModal').css('display', 'none');
+    }
+
+    function UpdateStatus(message, percentIndividual, percentTotal)
+    {
+        const $statusParagraph = $('#statusMessage');
+        const $percentIndividual = $('#fileUploadStatus');
+        const $percentTotal = $('#totalStatus');
+
+        $statusParagraph.text(message);
+        $percentIndividual.text("Individual File: " + percentIndividual);
+        $percentTotal.text("Total Upload: " + percentTotal);
     }
 </script>
 @*End Handle form submission*@

@@ -1,0 +1,12 @@
+﻿@page
+@model OrderSuccessfulModel
+@{
+    ViewData["Title"] = "File Upload";
+}
+<div>
+    <center>
+        Your order has been succesfully placed. 
+        <br />
+        @Model.Files.Count.ToString() files succesfully uploaded
+    </center>
+</div>

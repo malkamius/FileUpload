@@ -88,6 +88,7 @@ namespace FileUpload.Pages
                 List<OrderFileUploadInformation>? files;
 
                 result.OrderId = Order.OrderId;
+                result.ViewOrderKey = Order.ViewOrderKey ?? Guid.Empty;
                 result.UploadFileKey = Order.UploadFileKey ?? Guid.Empty;
 
                 if (Request.Form.ContainsKey("FileInformation") && Request.Form["FileInformation"].Count > 0 &&

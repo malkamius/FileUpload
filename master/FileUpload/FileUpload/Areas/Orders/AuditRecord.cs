@@ -2,7 +2,7 @@
 {
     public class AuditRecord
     {
-        public int AuditId { get; set; }
+        public long AuditId { get; set; }
         public string UserId { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string EmailAddress { get; set; } = string.Empty;
