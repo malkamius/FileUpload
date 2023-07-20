@@ -99,40 +99,41 @@
     @*<h1 class="display-4">Welcome</h1>*@
 
     <div class="container">
-        <form action="/upload" method="post" enctype="multipart/form-data">
+        <form method="post" asp-route="Index" enctype="multipart/form-data">
+            <input name="__RequestVerificationToken" type="hidden" value="">
             <div class="form-row">
                 <div>
                     <h2>Contact Info</h2>
-                    <input type="text" id="name" name="name" placeholder="Your name..">
-                    <input type="text" id="phone" name="phone" placeholder="Your phone number..">
-                    <input type="text" id="email" name="email" placeholder="Your email..">
+                    <input asp-for="Order.Name" type="text" id="Name" name="Name" placeholder="Your name.." value="@Model.Request.Cookies["name"]">
+                    <input asp-for="Order.PhoneNumber" type="text" id="PhoneNumber" name="PhoneNumber" placeholder="Your phone number.." value="@Model.Request.Cookies["phone"]">
+                    <input asp-for="Order.EmailAddress" type="text" id="EmailAddress" name="EmailAddress" placeholder="Your email.." value="@Model.Request.Cookies["email"]">
                 </div>
                 <div>
                     <h2>Company Info</h2>
-                    <input type="text" id="companyName" name="companyName" placeholder="Company name..">
-                    <input type="text" id="address1" name="address1" placeholder="Address 1..">
-                    <input type="text" id="address2" name="address2" placeholder="Address 2..">
-                    <input type="text" id="city" name="city" placeholder="City..">
-                    <input type="text" id="state" name="state" placeholder="State..">
-                    <input type="text" id="zip" name="zip" placeholder="Zip..">
+                    <input asp-for="Order.CompanyName" type="text" id="CompanyName" name="CompanyName" placeholder="Company name.." value="@Model.Request.Cookies["companyname"]">
+                    <input asp-for="Order.Address1" type="text" id="Address1" name="Address1" placeholder="Address 1.." value="@Model.Request.Cookies["address1"]">
+                    <input asp-for="Order.Address2" type="text" id="Address2" name="Address2" placeholder="Address 2.." value="@Model.Request.Cookies["address2"]">
+                    <input asp-for="Order.City" type="text" id="City" name="City" placeholder="City.." value="@Model.Request.Cookies["city"]">
+                    <input asp-for="Order.State" type="text" id="State" name="State" placeholder="State.." value="@Model.Request.Cookies["state"]">
+                    <input asp-for="Order.ZipCode" type="text" id="ZipCode" name="ZipCode" placeholder="Zip.." value="@Model.Request.Cookies["zip"]">
                 </div>
             </div>
             <div class="form-row">
                 <div>
                     <h2>Time Constraints</h2>
-                    <input type="date" id="dueDate" name="dueDate">
-                    <input type="time" id="latestDueTime" name="latestDueTime">
+                    <input asp-for="Order.DateDue" type="date" id="DateDue" name="DateDue">
+                    <input asp-for="Order.LatestTimeDue" type="time" id="LatestTimeDue" name="LatestTimeDue">
                 </div>
                 <div>
                     <h2>Accounting Details</h2>
-                    <input type="text" id="projectNumber" name="projectNumber" placeholder="Project #..">
-                    <input type="text" id="poNumber" name="poNumber" placeholder="PO #..">
-                    <input type="text" id="projectName" name="projectName" placeholder="Project name..">
+                    <input asp-for="Order.ProjectNumber" type="text" id="ProjectNumber" name="ProjectNumber" placeholder="Project #..">
+                    <input asp-for="Order.PONumber" type="text" id="PONumber" name="PONumber" placeholder="PO #..">
+                    <input asp-for="Order.ProjectName" type="text" id="ProjectName" name="ProjectName" placeholder="Project name..">
                 </div>
             </div>
             <div>
                 <h2>Production Specifics</h2>
-                <textarea id="notes" name="notes" placeholder="Special Instructions.."></textarea>
+                <textarea asp-for="Order.Notes" id="Notes" name="Notes" placeholder="Special Instructions.."></textarea>
             </div>
 
             <div>
@@ -154,53 +155,53 @@
     $(document).ready(function () {
         $('form').validate({
             rules: {
-                name: {
+                Name: {
                     required: true,
                     minlength: 2
                 },
-                phone: {
+                PhoneNumber: {
                     required: true,
                     minlength: 10,
                     number: true
                 },
-                email: {
+                EmailAddress: {
                     required: true,
                     email: true
                 },
-                companyName: {
+                CompanyName: {
                     required: true,
                 },
-                address1: {
+                Address1: {
                     required: true,
                 },
-                city: {
+                City: {
                     required: true,
                 },
-                state: {
+                State: {
                     required: true,
                 },
-                zip: {
+                ZipCode: {
                     required: true,
                     minlength: 5,
                     number: true
                 },
-                dueDate: {
-                    required: true,
+                DueDate: {
+                    required: false,
                     date: true
                 },
-                latestDueTime: {
-                    required: true,
+                LatestDueTime: {
+                    required: false,
                 },
-                projectNumber: {
-                    required: true,
+                ProjectNumber: {
+                    required: false,
                 },
-                poNumber: {
-                    required: true,
+                PONumber: {
+                    required: false,
                 },
-                projectName: {
-                    required: true,
+                ProjectName: {
+                    required: false,
                 },
-                notes: {
+                Notes: {
                     required: false,
                 }
             },
