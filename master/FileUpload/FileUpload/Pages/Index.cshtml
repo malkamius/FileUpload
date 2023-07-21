@@ -4,25 +4,30 @@
     ViewData["Title"] = "Home page";
 }
 <style>
+    /* Font family for the entire body */
     body {
         font-family: Arial, sans-serif;
     }
 
+    /* Styling for the form container */
     .formcontainer {
         width: 500px;
         margin: 0 auto;
     }
 
+    /* Styling for the upload form */
     .uploadform {
         margin-top: 50px;
     }
 
+    /* Styling for the form rows */
     .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 5px;
     }
 
+    /* Styling for text input, select, and textarea elements */
     input[type=text], select, textarea {
         width: 100%;
         padding: 2px;
@@ -33,6 +38,7 @@
         resize: vertical;
     }
 
+    /* Styling for the submit button */
     input[type=submit] {
         background-color: #4CAF50;
         color: white;
@@ -45,10 +51,12 @@
             background-color: #45a049;
         }
 
+    /* Styling for h2 headings */
     h2 {
         color: #2c3e50;
     }
 
+    /* Styling for the file upload area */
     .upload-area {
         border: 2px dashed #ccc;
         padding: 20px;
@@ -56,11 +64,10 @@
         margin-bottom: 16px;
         cursor: pointer;
         overflow: scroll;
-        
         height: 150px;
-        
     }
 
+    /* Styling for buttons */
     button {
         background-color: #4CAF50;
         color: white;
@@ -70,62 +77,69 @@
         margin-bottom: 16px;
     }
 
+    /* Styling for invalid feedback messages */
     .invalid-feedback {
         color: red;
     }
 
+    /* Styling for input elements with invalid data */
     .is-invalid {
         border-color: red;
     }
 
+    /* Styling for input elements with valid data */
     .is-valid {
         border-color: green;
     }
 
+    /* Styling for the file list container */
     #file-list-container {
         width: 500px;
         height: 200px;
         overflow: scroll;
     }
 
+    /* Styling for selected files in the file list */
     .selectedfile {
         background-color: #cce5ff;
         cursor: pointer;
     }
 
+    /* Default styling for unordered list */
     ul {
     }
 
+    /* Default styling for list items */
     li {
         text-align: left;
     }
 </style>
 
 <style>
+    /* Styling for the modal (popup) */
     .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
+        display: none; /* Hidden by default */
+        position: fixed; /* Positioned relative to the viewport */
+        z-index: 1; /* Ensures the modal appears on top of other content */
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
+        overflow: auto; /* Allow scrolling within the modal if content overflows */
+        background-color: rgba(0,0,0,0.4); /* Semi-transparent black background, creating a dimming effect */
     }
 
+    /* Styling for the content within the modal */
     .modal-content {
-        background-color: #fefefe;
-        margin: 15% auto;
+        background-color: #fefefe; /* Background color of the modal content area */
+        margin: 15% auto; /* Centers the modal vertically with a 15% margin from the top */
         padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
+        border: 1px solid #888; /* Border around the modal content area */
+        width: 80%; /* Sets the width of the modal content area to 80% of the viewport */
     }
 </style>
 
 <div class="text-center">
-    @*<h1 class="display-4">Welcome</h1>*@
-
     <div class="formcontainer">
         <form method="post" asp-route="Index" enctype="multipart/form-data" onsubmit="submitForm(event)" id="OrderForm" class="uploadform">
             <input name="__RequestVerificationToken" type="hidden" value="">
