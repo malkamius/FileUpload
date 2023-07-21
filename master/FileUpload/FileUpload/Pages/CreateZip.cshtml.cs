@@ -24,7 +24,7 @@ namespace FileUpload.Pages
             _userManager = userManager;
         }
 
-      public Order Order { get; set; } = default!;
+        public Order Order { get; set; } = default!;
         public List<Areas.Orders.Data.File>? Files { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
@@ -39,7 +39,7 @@ namespace FileUpload.Pages
             {
                 return NotFound();
             }
-            else 
+            else
             {
                 Order = order;
                 order.Status = "Files retrieved.";
@@ -57,72 +57,71 @@ namespace FileUpload.Pages
             {
                 //Files = await files.ToListAsync();
             }
+            var zippath = System.IO.Path.GetTempFileName();
 
-            using (var zipstream = new MemoryStream((int) fileInformation.Sum(f => f.Length)))
+            using (var zipstream = new System.IO.FileStream(zippath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            using (var archive = new System.IO.Compression.ZipArchive(zipstream, ZipArchiveMode.Create))
             {
-                using (var archive = new System.IO.Compression.ZipArchive(zipstream, ZipArchiveMode.Create))
+
+                foreach (var file in files)
                 {
-                    
-                    foreach (var file in files)
+                    var entry = archive.CreateEntry(file.OrderId + "_" + file.FileId + "_" + file.Name);
+                    using (var entrystream = entry.Open())
                     {
-                        var entry = archive.CreateEntry(file.OrderId + "_" + file.FileId + "_" + file.Name);
-                        using (var entrystream = entry.Open())
-                        {
-                            if(System.IO.File.Exists(file.FilePath))
+                        if (System.IO.File.Exists(file.FilePath))
                             using (var reader = System.IO.File.OpenRead(file.FilePath))
                             {
                                 reader.CopyTo(entrystream);
                             }
-                        }
-                    }
-                    var detailsentry = archive.CreateEntry(order.OrderId + "_details.xml");
-                    var details = new XElement("OrderDetails",
-                        new XAttribute("OrderId", order.OrderId),
-                        new XElement("ContactName", order.Name),
-                        new XElement("PhoneNumber", order.PhoneNumber),
-                        new XElement("EmailAddress", order.EmailAddress),
-                        new XElement("CompanyName", order.CompanyName),
-                        new XElement("Address1", order.Address1),
-                        new XElement("Address2", order.Address2),
-                        new XElement("City", order.City),
-                        new XElement("State", order.State),
-                        new XElement("ZipCode", order.ZipCode),
-                        new XElement("Source", order.Source),
-                        new XElement("DueDate", order.DateDue),
-                        new XElement("DueTime", order.LatestTimeDue),
-                        new XElement("SubmissionDate", order.DateCreated),
-                        new XElement("ProjectNumber", order.ProjectNumber),
-                        new XElement("ProjectName", order.ProjectName),
-                        new XElement("PONumber", order.PONumber),
-                        new XElement("Delivery", order.Delivery),
-                        new XElement("Department", order.Department),
-                        new XElement("NumberOfSets", order.NumberOfSets),
-                        new XElement("Size", order.Size),
-                        new XElement("Binding", order.Binding),
-                        new XElement("Notes", order.Notes));
-                    using (var entrystream = detailsentry.Open())
-                    {
-                        details.Save(entrystream);
                     }
                 }
-
-                var audituser = await _userManager.GetUserAsync(User);
-
-                AuditRecord auditRecord = new AuditRecord()
+                var detailsentry = archive.CreateEntry(order.OrderId + "_details.xml");
+                var details = new XElement("OrderDetails",
+                    new XAttribute("OrderId", order.OrderId),
+                    new XElement("ContactName", order.Name),
+                    new XElement("PhoneNumber", order.PhoneNumber),
+                    new XElement("EmailAddress", order.EmailAddress),
+                    new XElement("CompanyName", order.CompanyName),
+                    new XElement("Address1", order.Address1),
+                    new XElement("Address2", order.Address2),
+                    new XElement("City", order.City),
+                    new XElement("State", order.State),
+                    new XElement("ZipCode", order.ZipCode),
+                    new XElement("Source", order.Source),
+                    new XElement("DueDate", order.DateDue),
+                    new XElement("DueTime", order.LatestTimeDue),
+                    new XElement("SubmissionDate", order.DateCreated),
+                    new XElement("ProjectNumber", order.ProjectNumber),
+                    new XElement("ProjectName", order.ProjectName),
+                    new XElement("PONumber", order.PONumber),
+                    new XElement("Delivery", order.Delivery),
+                    new XElement("Department", order.Department),
+                    new XElement("NumberOfSets", order.NumberOfSets),
+                    new XElement("Size", order.Size),
+                    new XElement("Binding", order.Binding),
+                    new XElement("Notes", order.Notes));
+                using (var entrystream = detailsentry.Open())
                 {
-                    EmailAddress = audituser?.Email ?? string.Empty,
-                    UserId = audituser?.Id,
-                    UserName = audituser?.UserName ?? string.Empty,
-                    IpAddress = HttpContext.Connection.RemoteIpAddress.ToString(),
-                    Description = "Downloaded order " + Order.OrderId + " zip file",
-                    DateTime = DateTime.Now
-                };
-                _context.AuditRecords.Add(auditRecord);
-                await _context.SaveChangesAsync();
+                    details.Save(entrystream);
+                }
 
-                return File(zipstream.ToArray(), "application/x-zip-compressed", Order.OrderId + "_files.zip");
             }
-            
+            var audituser = await _userManager.GetUserAsync(User);
+
+            AuditRecord auditRecord = new AuditRecord()
+            {
+                EmailAddress = audituser?.Email ?? string.Empty,
+                UserId = audituser?.Id,
+                UserName = audituser?.UserName ?? string.Empty,
+                IpAddress = HttpContext.Connection.RemoteIpAddress.ToString(),
+                Description = "Downloaded order " + Order.OrderId + " zip file",
+                DateTime = DateTime.Now
+            };
+            _context.AuditRecords.Add(auditRecord);
+            await _context.SaveChangesAsync();
+
+            return new TempPhysicalFileResult(zippath, "application/x-zip-compressed", Order.OrderId + "_files.zip");
+
             return Page();
         }
     }

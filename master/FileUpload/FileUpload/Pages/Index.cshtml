@@ -55,6 +55,10 @@
         text-align: center;
         margin-bottom: 16px;
         cursor: pointer;
+        overflow: scroll;
+        
+        height: 150px;
+        
     }
 
     button {
@@ -162,7 +166,7 @@
 
             <div>
                 <h2>File Upload</h2>
-                <div class="upload-area" id="fo;e=;ost">
+                <div class="upload-area" id="drop-area">
                     Drag and Drop Files Here
                     <ul id="file-list"></ul>
                 </div>
@@ -297,6 +301,10 @@
 
 @*Handle form submission*@
 <script>
+    var fileInformation = [];
+    var attachments = [];
+    var fileCount = 0;
+    var processedFileCount = 0;
     function submitForm(event) {
         event.preventDefault(); // Prevent the default form submission
         EnableDisableForm(false);
@@ -318,7 +326,25 @@
 
         fileInformation = [];
         attachments = [];
-        $('li').each(async function () {
+        fileCount = 0;
+        processedFileCount = 0;
+
+        function handleProcessedFile(file)
+        {
+            processedFileCount++;
+           
+        }
+
+        async function handleFile(file, index)
+        {
+            await file.file(function (item) {
+                var onefile = new CreateFileInformation(item.name, item.size, item.type);
+                fileInformation[index] = (onefile);
+                attachments[index] = (item);
+            });
+            handleProcessedFile(file);
+        }
+        $('li').each(function () {
             var file = $(this).data('attachment');
 
             if (file === undefined) return;
@@ -326,38 +352,47 @@
             file = $(this).get(0).attachment;
 
             if (file.isFile) {
-                await file.file(function (item) {
-                    var onefile = new CreateFileInformation(item.name, item.size, item.type);
-                    fileInformation.push(onefile);
-                    attachments.push(item);
-                });
+                fileCount++;
+                handleFile(file, fileCount - 1);
+                
             }
             else if (file.isFile === undefined) {
+                fileCount++;
                 var onefile = new CreateFileInformation(file.name, file.size, file.type);
                 fileInformation.push(onefile);
-                attachments.push(file);
+                attachments.push(file);  
             }
         });
-        var jsonString = JSON.stringify(fileInformation);
-        newForm.append("FileInformation", jsonString);
-        UpdateStatus("Submitting order...", "0%", "0%");
-        var formSubmissionRequest = new XMLHttpRequest();
 
-        formSubmissionRequest.onreadystatechange = function () {
-            if (formSubmissionRequest.readyState == 4) {
-                if (formSubmissionRequest.status == 200) {
-                    HandleAwaitingFiles(formSubmissionRequest, attachments);
-                }
-                else if (formSubmissionRequest.status == 400) {
-                    HandleSubmissionFailure(formSubmissionRequest);
-                }
-                else {
-                    HandleSubmissionFailure(formSubmissionRequest);
-                }
+        function CheckFilesHandled()
+        {
+            if (processedFileCount >= fileCount) {
+                var jsonString = JSON.stringify(fileInformation);
+                newForm.append("FileInformation", jsonString);
+                UpdateStatus("Submitting order...", "0%", "0%");
+                var formSubmissionRequest = new XMLHttpRequest();
+
+                formSubmissionRequest.onreadystatechange = function () {
+                    if (formSubmissionRequest.readyState == 4) {
+                        if (formSubmissionRequest.status == 200) {
+                            HandleAwaitingFiles(formSubmissionRequest, attachments);
+                        }
+                        else if (formSubmissionRequest.status == 400) {
+                            HandleSubmissionFailure(formSubmissionRequest);
+                        }
+                        else {
+                            HandleSubmissionFailure(formSubmissionRequest);
+                        }
+                    }
+                };
+                formSubmissionRequest.open(originalForm.method, originalForm.action, true);
+                formSubmissionRequest.send(newForm);
             }
-        };
-        formSubmissionRequest.open(originalForm.method, originalForm.action, true);
-        formSubmissionRequest.send(newForm);
+            else
+                setTimeout(CheckFilesHandled, 500);
+        }
+        setTimeout(CheckFilesHandled, 500);
+        
     }
 
     function FileUpload(OrderInsertResults) {
@@ -495,3 +530,51 @@
     }
 </script>
 @*End Handle form submission*@
+
+@*Handle Drag & Drop*@
+<script>
+    const $dropArea = $('#drop-area');
+    $dropArea.on('dragover', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.originalEvent.dataTransfer.dropEffect = 'copy';
+    });
+
+    $dropArea.on('drop', async function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        //$fileList.empty(); // Clear the file list
+        const items = e.originalEvent.dataTransfer.items;
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            scanFiles(item.webkitGetAsEntry(), $fileList, "");
+        }
+    });
+
+    function scanFiles(item, container, parentPath) {
+        const filePath = parentPath + '/' + item.name;
+        const $li = $('<li>')
+            .text(item.name)
+            .attr('data-path', filePath)
+            .attr('data-attachment', item);
+        $li.get(0).attachment = item;
+        container.append($li);
+        var directoryContainer = false;
+        if (item.isDirectory) {
+            let directoryReader = item.createReader();
+            directoryContainer = $('<ul>')
+                .attr('data-path', filePath); //document.createElement("ul");
+            container.append(directoryContainer);
+            directoryReader.readEntries((entries) => {
+                entries.forEach((entry) => {
+                    scanFiles(entry, directoryContainer, parentPath + "/" + entry.name);
+                });
+            });
+        }
+        if (directoryContainer != false)
+            $li.attr('data-ul', directoryContainer)
+    }
+</script>
+@*End Handle Drag & Drop*@
