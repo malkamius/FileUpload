@@ -8,7 +8,7 @@
         font-family: Arial, sans-serif;
     }
 
-    .container {
+    .formcontainer {
         width: 500px;
         margin: 0 auto;
     }
@@ -126,7 +126,7 @@
 <div class="text-center">
     @*<h1 class="display-4">Welcome</h1>*@
 
-    <div class="container">
+    <div class="formcontainer">
         <form method="post" asp-route="Index" enctype="multipart/form-data" onsubmit="submitForm(event)" id="OrderForm">
             <input name="__RequestVerificationToken" type="hidden" value="">
             <div class="form-row">
