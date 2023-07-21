@@ -13,7 +13,7 @@
         margin: 0 auto;
     }
 
-    form {
+    .uploadform {
         margin-top: 50px;
     }
 
@@ -127,7 +127,7 @@
     @*<h1 class="display-4">Welcome</h1>*@
 
     <div class="formcontainer">
-        <form method="post" asp-route="Index" enctype="multipart/form-data" onsubmit="submitForm(event)" id="OrderForm">
+        <form method="post" asp-route="Index" enctype="multipart/form-data" onsubmit="submitForm(event)" id="OrderForm" class="uploadform">
             <input name="__RequestVerificationToken" type="hidden" value="">
             <div class="form-row">
                 <div>
