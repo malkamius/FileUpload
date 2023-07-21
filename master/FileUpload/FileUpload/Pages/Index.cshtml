@@ -188,69 +188,76 @@
 
 @*Begin of form validation*@
 <script>
+    // Code to be executed when the document is ready
     $(document).ready(function () {
+        // Configure form validation using the jQuery Validation plugin
         $('form').validate({
+            // Rules for each form field
             rules: {
                 Name: {
-                    required: true,
-                    minlength: 2
+                    required: true, // Name field is required
+                    minlength: 2 // Name must be at least 2 characters long
                 },
                 PhoneNumber: {
-                    required: true,
-                    minlength: 10,
-                    number: true
+                    required: true, // Phone number field is required
+                    minlength: 10, // Phone number must be at least 10 digits long
+                    number: true // Phone number must be a numeric value
                 },
                 EmailAddress: {
-                    required: true,
-                    email: true
+                    required: true, // Email address field is required
+                    email: true // Email address must be in a valid email format
                 },
                 CompanyName: {
-                    required: true,
+                    required: true, // Company name field is required
                 },
                 Address1: {
-                    required: true,
+                    required: true, // Address1 field is required
                 },
                 City: {
-                    required: true,
+                    required: true, // City field is required
                 },
                 State: {
-                    required: true,
+                    required: true, // State field is required
                 },
                 ZipCode: {
-                    required: true,
-                    minlength: 5,
-                    number: true
+                    required: true, // Zip code field is required
+                    minlength: 5, // Zip code must be at least 5 digits long
+                    number: true // Zip code must be a numeric value
                 },
                 DueDate: {
-                    required: false,
-                    date: true
+                    required: false, // Due date field is optional (not required)
+                    date: true // Due date must be in a valid date format
                 },
                 LatestDueTime: {
-                    required: false,
+                    required: false, // Latest due time field is optional (not required)
                 },
                 ProjectNumber: {
-                    required: false,
+                    required: false, // Project number field is optional (not required)
                 },
                 PONumber: {
-                    required: false,
+                    required: false, // PO number field is optional (not required)
                 },
                 ProjectName: {
-                    required: false,
+                    required: false, // Project name field is optional (not required)
                 },
                 Notes: {
-                    required: false,
+                    required: false, // Notes field is optional (not required)
                 }
             },
-            messages: {
-            },
+            // Custom error messages for form fields (messages are empty in this example)
+            messages: {},
+            // Element to wrap the error messages (div in this case)
             errorElement: 'div',
+            // Function to place the error messages after the invalid element
             errorPlacement: function (error, element) {
                 error.addClass('invalid-feedback');
                 error.insertAfter(element);
             },
+            // Function to highlight the input element when it's invalid
             highlight: function (element, errorClass, validClass) {
                 $(element).addClass('is-invalid').removeClass('is-valid');
             },
+            // Function to unhighlight the input element when it's valid
             unhighlight: function (element, errorClass, validClass) {
                 $(element).addClass('is-valid').removeClass('is-invalid');
             }
@@ -261,38 +268,49 @@
 
 @*Begin file input handling/remove file handling*@
 <script>
+    // Selecting the relevant DOM elements using jQuery
     const $fileSelector = $('#FileSelector');
     const $fileList = $('#file-list');
     const $removeButton = $('#remove-button');
 
+    // Event handler for the file selector (when files are selected)
     $fileSelector.on('change', function (e) {
         var files = $fileSelector.get(0).files;
 
-
+        // Loop through the selected files
         for (var i = 0; i < files.length; i++) {
             var item = files[i];
+            // Create a new list item for each file and store the file information as attributes
             const $li = $('<li>')
                 .text(item.name)
                 .attr('data-path', item.name)
                 .attr('data-attachment', item);
+            // Append the list item to the file list element
             $fileList.append($li);
+            // Store the file object as the 'attachment' property of the list item for later use
             $li.get(0).attachment = item;
         }
+        // Clear the file selector value to allow selecting new files
         $fileSelector.val('');
     });
 
+    // Event handler for clicking on a list item (to select/deselect the file)
     $fileList.on('click', 'li', function () {
-        $(this).toggleClass('selectedfile');
+        $(this).toggleClass('selectedfile'); // Toggle the 'selectedfile' class to highlight/unhighlight the selected file
     });
 
+    // Event handler for the remove button (to remove selected files)
     $removeButton.on('click', function (e) {
-
+        // Loop through each list item with the 'selectedfile' class
         $('.selectedfile').each(function () {
             const selectedfilePath = $(this).data('path');
-            const ul = $(this).next('ul');// $(this).data('ul');
+            // Find the next unordered list ('ul') element after the selected list item
+            const ul = $(this).next('ul');
+            // If such an 'ul' element exists, remove it (presumably, it's associated with this file)
             if (ul.length == 1) {
                 ul.remove();
             }
+            // Remove the selected list item from the DOM
             $('.selectedfile').remove();
         });
     });
@@ -301,229 +319,278 @@
 
 @*Handle form submission*@
 <script>
+    // Define global variables to store file information and attachments
     var fileInformation = [];
     var attachments = [];
     var fileCount = 0;
     var processedFileCount = 0;
+
+    // Function to handle the form submission event
     function submitForm(event) {
         event.preventDefault(); // Prevent the default form submission
         EnableDisableForm(false);
         UpdateStatus("Initializing...", "0%", "0%");
         ShowHideStatus(true);
+
         // Get the original form
         var originalForm = document.getElementById("OrderForm");
 
-        // Create a new form copy of original
+        // Create a new form copy of the original
         var newForm = new FormData(originalForm);
 
+        // Append the first element of the form (assuming it's the primary data) to the new form
         newForm.append(originalForm.elements[0].name, originalForm.elements[0].value);
 
+        // Constructor function to create file information objects
         function CreateFileInformation(filename, length, type) {
             this.FileName = filename;
             this.Length = length;
             this.ContentType = type;
         }
 
+        // Clear the file information and attachments arrays and reset the file counters
         fileInformation = [];
         attachments = [];
         fileCount = 0;
         processedFileCount = 0;
 
-        function handleProcessedFile(file)
-        {
+        // Function to handle a processed file
+        function handleProcessedFile(file) {
             processedFileCount++;
-           
+            // You may want to do something with the processed file here
         }
 
-        async function handleFile(file, index)
-        {
+        // Asynchronous function to handle a file
+        async function handleFile(file, index) {
             await file.file(function (item) {
+                // Create a new file information object and add it to the fileInformation array
                 var onefile = new CreateFileInformation(item.name, item.size, item.type);
-                fileInformation[index] = (onefile);
-                attachments[index] = (item);
+                fileInformation[index] = onefile;
+                // Add the file item to the attachments array
+                attachments[index] = item;
             });
             handleProcessedFile(file);
         }
+
+        // Loop through each 'li' element and handle its associated file
         $('li').each(function () {
             var file = $(this).data('attachment');
 
             if (file === undefined) return;
 
+            // Get the actual file item from the 'attachment' property
             file = $(this).get(0).attachment;
 
             if (file.isFile) {
+                // If the file is a File object, increment the fileCount and handle the file
                 fileCount++;
                 handleFile(file, fileCount - 1);
-                
-            }
-            else if (file.isFile === undefined) {
+            } else if (file.isFile === undefined) {
+                // If the file is not a File object, increment the fileCount, create a file information object, and add it to the arrays
                 fileCount++;
                 var onefile = new CreateFileInformation(file.name, file.size, file.type);
                 fileInformation.push(onefile);
-                attachments.push(file);  
+                attachments.push(file);
             }
         });
 
-        function CheckFilesHandled()
-        {
+        // Function to check if all files have been processed, and submit the form if ready
+        function CheckFilesHandled() {
             if (processedFileCount >= fileCount) {
+                // Convert the fileInformation array to a JSON string and append it to the new form
                 var jsonString = JSON.stringify(fileInformation);
                 newForm.append("FileInformation", jsonString);
                 UpdateStatus("Submitting order...", "0%", "0%");
+                // Create a new XMLHttpRequest to submit the form data
                 var formSubmissionRequest = new XMLHttpRequest();
 
+                // Define the event handler for the XMLHttpRequest's state change
                 formSubmissionRequest.onreadystatechange = function () {
                     if (formSubmissionRequest.readyState == 4) {
                         if (formSubmissionRequest.status == 200) {
+                            // If the form submission was successful, handle the awaiting files
                             HandleAwaitingFiles(formSubmissionRequest, attachments);
-                        }
-                        else if (formSubmissionRequest.status == 400) {
+                        } else if (formSubmissionRequest.status == 400) {
+                            // If the form submission resulted in a Bad Request (400), handle the submission failure
                             HandleSubmissionFailure(formSubmissionRequest);
-                        }
-                        else {
+                        } else {
+                            // If the form submission resulted in an unknown error, handle the submission failure
                             HandleSubmissionFailure(formSubmissionRequest);
                         }
                     }
                 };
+                // Open the XMLHttpRequest with the original form's method and action
                 formSubmissionRequest.open(originalForm.method, originalForm.action, true);
+                // Send the new form data as the payload of the XMLHttpRequest
                 formSubmissionRequest.send(newForm);
-            }
-            else
+            } else {
+                // If not all files have been processed, wait for 500 milliseconds and check again
                 setTimeout(CheckFilesHandled, 500);
+            }
         }
+
+        // Start the process to check if all files have been processed
         setTimeout(CheckFilesHandled, 500);
-        
     }
 
+
+    // Define the FileUpload function which handles uploading files in chunks
     function FileUpload(OrderInsertResults) {
+        // Store the OrderInsertResults object in the FileUpload instance
         this.OrderInsertResults = OrderInsertResults;
+        // Initialize variables to keep track of file and write indices
         this.FileIndex = 0;
         this.WriteIndex = 0;
+        // Set the chunk size to 10,240,000 bytes (10 MB)
         this.ChunkSize = 10240000;
+        // Initialize variables to track the total bytes written and total file length
         this.TotalWritten = 0;
         this.TotalLength = 0;
 
+        // Define the SendFiles function for handling the file upload process
         this.SendFiles = function (Upload) {
-            if(Upload.FileIndex == 0 && Upload.WriteIndex == 0)
-            {
+            // Check if this is the start of the file upload process
+            if (Upload.FileIndex == 0 && Upload.WriteIndex == 0) {
+                // Display a status message indicating the start of the file upload
                 UpdateStatus("Starting file upload...", "0%", "0%");
             }
 
+            // Create a new FormData object to store data for the XMLHttpRequest
             var formData = new FormData();
+            // Append relevant data to the form data
             formData.append('OrderId', Upload.OrderInsertResults.orderId);
             formData.append('UploadFileKey', Upload.OrderInsertResults.uploadFileKey);
             formData.append('FileId', Upload.OrderInsertResults.fileInformation[Upload.FileIndex].fileId);
 
-
+            // Set the action and method for the form data
             formData.action = "/UploadFile";
             formData.method = "POST";
 
+            // Get the file data from the OrderInsertResults object
             var file = OrderInsertResults.fileInformation[Upload.FileIndex].Blob;
 
+            // Append a chunk of the file to the form data
             formData.append("file[]", file.slice(Upload.WriteIndex, Upload.WriteIndex + Upload.ChunkSize), file.name);
+
+            // Create a new XMLHttpRequest object for uploading the chunk
             var ChunkUploadRequest = new XMLHttpRequest();
 
-
+            // Open the XMLHttpRequest with the specified method and action
             ChunkUploadRequest.open(formData.method, formData.action, true);
+            // Send the form data as the payload of the XMLHttpRequest
             ChunkUploadRequest.send(formData);
 
+            // Define an event handler for the XMLHttpRequest's state change
             ChunkUploadRequest.onreadystatechange = function () {
+                // Check if the request is complete
                 if (ChunkUploadRequest.readyState == 4) {
+                    // Check if the request was successful (status 200)
                     if (ChunkUploadRequest.status == 200) {
+                        // Record the previous write index
                         var wasWriteIndex = Upload.WriteIndex;
+                        // Update the write index to point to the next chunk
                         Upload.WriteIndex = Upload.WriteIndex + Upload.ChunkSize;
-                        
+
+                        // Check if the entire file has been uploaded
                         if (Upload.WriteIndex > file.size) {
+                            // Move to the next file
                             Upload.FileIndex++;
+                            // Update status to show progress for the next file
                             UpdateStatus("File " + (Upload.FileIndex + 1) + "/" + Upload.OrderInsertResults.fileInformation.length, "0%", Math.floor(Upload.TotalWritten / Upload.TotalLength * 100) + "%");
+                            // Reset the write index to 0 for the next file
                             Upload.WriteIndex = 0;
                         }
-                        else
-                        {
+                        else {
+                            // Update the total bytes written and display progress for the current file
                             Upload.TotalWritten += Math.min(Upload.ChunkSize, OrderInsertResults.fileInformation[Upload.FileIndex].Blob.size - wasWriteIndex);
                             UpdateStatus("File " + (Upload.FileIndex + 1) + "/" + Upload.OrderInsertResults.fileInformation.length, Math.floor(Upload.WriteIndex / file.size * 100) + "%", Math.floor(Upload.TotalWritten / Upload.TotalLength * 100) + "%");
                         }
 
+                        // Check if all files have been uploaded
                         if (Upload.FileIndex >= Upload.OrderInsertResults.fileInformation.length) {
+                            // Update status to show 100% progress for all files
                             UpdateStatus("File " + (Upload.FileIndex) + "/" + Upload.OrderInsertResults.fileInformation.length, "100%", "100%");
-                            //alert("All done.");
+                            // Redirect to the order successful page after a delay
                             setTimeout(() => {
                                 window.location.href = "/OrderSuccessful?id=" + Upload.OrderInsertResults.orderId + "&viewOrderGuid=" + Upload.OrderInsertResults.viewOrderKey;
                             }, 1000);
-                            //ShowHideStatus(false);
-                            //EnableDisableForm(true);
                         }
                         else {
+                            // Upload the next file recursively
                             Upload.SendFiles(Upload);
                         }
                     }
+                    // Handle HTTP 400 Bad Request
                     else if (ChunkUploadRequest.status == 400) {
-                        alert("400 on chunk upload request");
-                        ShowHideStatus(false);
-                        EnableDisableForm(true);
+                        UpdateStatus("400 on chunk upload request", "0%", "0%");
                     }
+                    // Handle other error responses
                     else {
-                        alert(ChunkUploadRequest.responseText);
-                        ShowHideStatus(false);
-                        EnableDisableForm(true);
+                        UpdateStatus("Error: " + ChunkUploadRequest.responseText, "0%", "0%");
                     }
                 }
             };
         }
     }
 
+    // Global variable to store the FileUpload instance
     var upload;
 
+    // Function to handle successful file uploads and initialize the FileUpload instance
     function HandleAwaitingFiles(ajax, attachments) {
         var response = ajax.responseText;
         var jsonObject = JSON.parse(response);
         var totalLength = 0;
+
+        // Assign the file Blob objects to the FileInformation objects in the response
         for (var i = 0; i < jsonObject.fileInformation.length; i++) {
             jsonObject.fileInformation[i].Blob = attachments[i];
             totalLength += attachments[i].size;
         }
+
+        // Create a new FileUpload instance and set the total length
         upload = new FileUpload(jsonObject);
         upload.TotalLength = totalLength;
+
+        // Start sending files using the SendFiles function of the FileUpload instance
         upload.SendFiles(upload);
     }
 
+    // Function to handle submission failure
     function HandleSubmissionFailure(ajax) {
-
+        UpdateStatus("Order not processed... " + ajax.responseText, "0%", "0%");
     }
 
+    // Function to handle upload failure
     function HandleUploadFailure(ajax) {
-
+        UpdateStatus("Upload failure... " + ajax.responseText, "0%", "0%");
     }
 
-    function ChunkUploadCallback(ChunkUploadRequest) {
-
-    }
-
-    function HandleUploadSuccess(ajax) {
-
-    }
-
+    // Function to enable/disable form elements
     function EnableDisableForm(enabled) {
         if (enabled) {
             $(this).find(':input').prop('disabled', false);
-        }
-        else
+        } else {
             $(this).find(':input').prop('disabled', true);
+        }
     }
 
+    // Function to show/hide the status modal
     function ShowHideStatus(show) {
-        if (show)
+        if (show) {
             $('#statusModal').css('display', 'block');
-        else
+        } else {
             $('#statusModal').css('display', 'none');
+        }
     }
 
-    function UpdateStatus(message, percentIndividual, percentTotal)
-    {
+    // Function to update the status message and progress indicators
+    function UpdateStatus(message, percentIndividual, percentTotal) {
         const $statusParagraph = $('#statusMessage');
         const $percentIndividual = $('#fileUploadStatus');
         const $percentTotal = $('#totalStatus');
 
+        // Update the status message and progress indicators with the provided values
         $statusParagraph.text(message);
         $percentIndividual.text("Individual File: " + percentIndividual);
         $percentTotal.text("Total Upload: " + percentTotal);
@@ -533,26 +600,35 @@
 
 @*Handle Drag & Drop*@
 <script>
+    // Selecting the drop area element using jQuery
     const $dropArea = $('#drop-area');
+
+    // Event handler for dragging over the drop area
     $dropArea.on('dragover', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        e.originalEvent.dataTransfer.dropEffect = 'copy';
+        e.originalEvent.dataTransfer.dropEffect = 'copy'; // Set the drop effect to 'copy'
     });
 
+    // Event handler for dropping files into the drop area
     $dropArea.on('drop', async function (e) {
         e.preventDefault();
         e.stopPropagation();
 
-        //$fileList.empty(); // Clear the file list
+        // Clear the file list if needed (commented out in the original code)
+        // $fileList.empty();
+
         const items = e.originalEvent.dataTransfer.items;
 
+        // Loop through the items dropped into the drop area
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
+            // Call the scanFiles function to handle the dropped item (file or directory)
             scanFiles(item.webkitGetAsEntry(), $fileList, "");
         }
     });
 
+    // Function to scan files and directories
     function scanFiles(item, container, parentPath) {
         const filePath = parentPath + '/' + item.name;
         const $li = $('<li>')
@@ -561,20 +637,30 @@
             .attr('data-attachment', item);
         $li.get(0).attachment = item;
         container.append($li);
+
         var directoryContainer = false;
+        // Check if the item is a directory
         if (item.isDirectory) {
+            // Create a directory reader to read the contents of the directory
             let directoryReader = item.createReader();
+            // Create a new container (ul) element for the directory
             directoryContainer = $('<ul>')
-                .attr('data-path', filePath); //document.createElement("ul");
+                .attr('data-path', filePath);
+            // Append the directory container to the current container (ul)
             container.append(directoryContainer);
+
+            // Read the entries (files and subdirectories) of the directory
             directoryReader.readEntries((entries) => {
+                // Loop through the entries and recursively call scanFiles for each entry
                 entries.forEach((entry) => {
                     scanFiles(entry, directoryContainer, parentPath + "/" + entry.name);
                 });
             });
         }
+
+        // If the item is a directory, store the directory container in the data-ul attribute of the list item
         if (directoryContainer != false)
-            $li.attr('data-ul', directoryContainer)
+            $li.attr('data-ul', directoryContainer);
     }
 </script>
 @*End Handle Drag & Drop*@

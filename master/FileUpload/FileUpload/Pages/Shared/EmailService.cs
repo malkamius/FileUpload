@@ -20,8 +20,8 @@ namespace FileUpload.Pages
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
             var fromEmail = _configuration["EmailSettings:FromEmail"];
-            var gmailUsername = _configuration["EmailSettings:GmailUsername"];
-            var gmailPassword = _configuration["EmailSettings:GmailPassword"];
+            var EmailUsername = _configuration["EmailSettings:EmailUsername"];
+            var EmailPassword = _configuration["EmailSettings:EmailPassword"];
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("LiveOrder", fromEmail));
@@ -37,7 +37,7 @@ namespace FileUpload.Pages
             {
                 smtpClient.ServerCertificateValidationCallback = (s, c, h, e) => true;
                 smtpClient.Connect("kbs-cloud.com", 25, false);
-                smtpClient.Authenticate(gmailUsername, gmailPassword);
+                smtpClient.Authenticate(EmailUsername, EmailPassword);
                 smtpClient.Send(message);
                 smtpClient.Disconnect(true);
             }
@@ -47,8 +47,8 @@ namespace FileUpload.Pages
         public Task SendEmailAsync(string email, string subject, string htmlMessage, MimeKit.AttachmentCollection attachments)
         {
             var fromEmail = _configuration["EmailSettings:FromEmail"];
-            var gmailUsername = _configuration["EmailSettings:GmailUsername"];
-            var gmailPassword = _configuration["EmailSettings:GmailPassword"];
+            var EmailUsername = _configuration["EmailSettings:EmailUsername"];
+            var EmailPassword = _configuration["EmailSettings:EmailPassword"];
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("LiveOrder", fromEmail));
@@ -67,7 +67,7 @@ namespace FileUpload.Pages
             {
                 smtpClient.ServerCertificateValidationCallback = (s, c, h, e) => true;
                 smtpClient.Connect("kbs-cloud.com", 25, false);
-                smtpClient.Authenticate(gmailUsername, gmailPassword);
+                smtpClient.Authenticate(EmailUsername, EmailPassword);
                 smtpClient.Send(message);
                 smtpClient.Disconnect(true);
             }
@@ -77,8 +77,8 @@ namespace FileUpload.Pages
         public async Task SendEmailActuallyAsync(string toEmail, string subject, string body)
         {
             var fromEmail = _configuration["EmailSettings:FromEmail"];
-            var gmailUsername = _configuration["EmailSettings:GmailUsername"];
-            var gmailPassword = _configuration["EmailSettings:GmailPassword"];
+            var EmailUsername = _configuration["EmailSettings:EmailUsername"];
+            var EmailPassword = _configuration["EmailSettings:EmailPassword"];
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("LiveOrder", fromEmail));
@@ -93,7 +93,7 @@ namespace FileUpload.Pages
             {
                 smtpClient.ServerCertificateValidationCallback = (s, c, h, e) => true;
                 await smtpClient.ConnectAsync("kbs-cloud.com", 25, false);
-                await smtpClient.AuthenticateAsync(gmailUsername, gmailPassword);
+                await smtpClient.AuthenticateAsync(EmailUsername, EmailPassword);
                 await smtpClient.SendAsync(message);
                 await smtpClient.DisconnectAsync(true);
             }
